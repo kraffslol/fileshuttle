@@ -57,10 +57,12 @@
             advancedView                = advancedView_,
             showInPopUpButton           = showInPopUpButton_,
             setFilenamePopUpButton      = setFilenamePopUpButton_,
+            shortenerPopUpButton        = shortenerPopUpButton_,
             clipboardRecorderControl	= clipboardRecorderControl_,
             selectedIdentifier          = selectedIdentifier_,
             selectedView                = selectedView_,
             showDockIcon                = showDockIcon_,
+            shortenerApiTextField       = shortenerApiTextField_,
             passwordTimer               = passwordTimer_;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -115,6 +117,15 @@
 	}
 	else
 		[self.setFilenamePopUpButton selectItemWithTag:0];
+    
+    if([defaults integerForKey:@"selected_shortener"]) {
+        [self.shortenerPopUpButton selectItemWithTag:[defaults integerForKey:@"selected_shortener"]];
+    }
+    if([defaults objectForKey:@"api_shortener"]) {
+        [self.shortenerApiTextField setStringValue:[defaults objectForKey:@"api_shortener"]];
+        [self.shortenerApiTextField setEnabled:YES];
+    }
+    
 	
 	self.clipboardRecorderControl.style = SRGreyStyle;
 	self.clipboardRecorderControl.animates = YES;
@@ -213,6 +224,27 @@
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+- (IBAction)shortenerPopUpButtonChanged:(id)sender {
+    NSInteger tag = [self.shortenerPopUpButton selectedTag];
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setInteger:tag forKey:@"selected_shortener"];
+    // If shortener selected is bit.ly or j.mp ask for API key.
+    if(tag == 2 || tag == 3) {
+        [shortenerApiTextField_ setEnabled:YES];
+    } else {
+        [shortenerApiTextField_ setEnabled:NO];
+    }
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (void)saveApiKey {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSString *key = [shortenerApiTextField_ stringValue];
+    [defaults setObject:key forKey:@"api_shortener"];
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (IBAction)shortenerApiChanged:(id)sender {
+    [self saveApiKey];
+}
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Private Methods
